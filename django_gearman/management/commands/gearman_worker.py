@@ -94,7 +94,7 @@ class Command(NoArgsCommand):
         """children only: register all jobs, start working"""
         worker = GearmanWorker()
         for job in jobs:
-            worker.register_function(job.register_as, job)
+            worker.register_task(job.register_as, job)
         try:
             worker.work()
         except KeyboardInterrupt:

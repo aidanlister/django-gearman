@@ -4,7 +4,7 @@ import sys
 
 from django.conf import settings
 from django.core.management.base import NoArgsCommand
-from django_gearman import GearmanWorker
+from django_gearman import DjangoGearmanWorker
 
 
 class Command(NoArgsCommand):
@@ -92,7 +92,7 @@ class Command(NoArgsCommand):
 
     def work(self, jobs):
         """children only: register all jobs, start working"""
-        worker = GearmanWorker()
+        worker = DjangoGearmanWorker()
         for job in jobs:
             worker.register_task(job.register_as, job)
         try:

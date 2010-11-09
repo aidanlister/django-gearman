@@ -4,7 +4,7 @@ import sys
 
 from django.conf import settings
 from django.core.management.base import NoArgsCommand
-from django_gearman import DjangoGearmanWorker
+from django_gearman.models import DjangoGearmanWorker
 
 
 class Command(NoArgsCommand):

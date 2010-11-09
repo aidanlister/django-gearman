@@ -35,15 +35,18 @@ Specify the following settings in your local settings.py file:
 Workers
 -------
 ### Registering jobs
-Create a file `gearman.py` in any of your django apps, and define as many
+Create a file `gearman_jobs.py` in any of your django apps, and define as many
 jobs as functions as you like. The jobs must accept a single argument as
 passed by the caller and must return the result of the operation, if
 applicable. (Note: It must accept an argument, even if you don't use it).
 
+If you need to pass python objects or multiple arguments, you must first
+`pickle` them.
+
 Mark each of these functions as gearman jobs by decorating them with
 `django_gearman.decorators.gearman_job`.
 
-For an example, look at the `gearman_example` app's `gearman.py` file.
+For an example, look at the `gearman_example` app's `gearman_jobs.py` file.
 
 ### Starting a worker
 To start a worker, run `python manage.py gearman_worker`. It will start
@@ -62,23 +65,26 @@ you probably want to run this in a _screen_ session or similar.
 Clients
 -------
 To make your workers work, you need a client app passing data to them. Create
-and instance of the `django_gearman.GearmanClient` class and execute a
-`django_gearman.Task` with it:
+and instance of the `django_gearman.GearmanClient` class and execute it:
 
-    from gearman import GearmanClient, Task
-    client = GearmanClient()
-    res = client.do_task(Task("gearman_example.reverse", sentence))
-    print "Result: '%s'" % res
+    from django_gearman import DjangoGearmanClient
+    client = DjangoGearmanClient()
+    sentence = "Simple Example"
+    completed_job_request = client.submit_job("gearman_example.reverse", sentence))
+    print "Result: '%s'" % completed_job_request.result
 
 The notation for the task name is `appname.jobname`, no matter what pattern
 you have defined in `GEARMAN_JOB_NAME`.
 
 Dispatching a background event without waiting for the result is easy as well:
 
-    client.dispatch_background_task('gearman_example.background_counting', None)
+    completed_job_request = client.submit_job("gearman_example.reverse", wait_until_complete=False))
 
 For a live example look at the `gearman_example` app, in the
 `management/commands/gearman_example_client.py` file.
+
+For more information, see the gearman documentation:
+http://packages.python.org/gearman/
 
 Example App
 -----------

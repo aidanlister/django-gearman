@@ -22,26 +22,18 @@ Add ``django_gearman`` to the `INSTALLED_APPS` section of `settings.py`.
 Specify the following settings in your local settings.py file:
 
     # One or more gearman servers
-    GEARMAN_SERVERS = ['127.0.0.1']
-
-    # gearman job name pattern. Namespacing etc goes here. This is the pattern
-    # your jobs will register as with the server, and that you'll need to use
-    # when calling them from a non-django-gearman client.
-    # replacement patterns are:
-    # %(app)s : django app name the job is filed under
-    # %(job)s : job name
-    GEARMAN_JOB_NAME = '%(app)s.%(job)s'
+    GEARMAN_SERVERS = ['127.0.0.1:4730']
 
 Workers
 -------
 ### Registering jobs
 Create a file `gearman_jobs.py` in any of your django apps, and define as many
 jobs as functions as you like. The jobs must accept a single argument as
-passed by the caller and must return the result of the operation, if
-applicable. (Note: It must accept an argument, even if you don't use it).
+passed by the caller and must return the result of the operation (if there is
+a result).
 
-If you need to pass python objects or multiple arguments, you must first
-`pickle` them.
+This module implements transparent pickling, so workers both send and receive
+native python datatypes.  
 
 Mark each of these functions as gearman jobs by decorating them with
 `django_gearman.decorators.gearman_job`.
@@ -73,8 +65,7 @@ and instance of the `django_gearman.GearmanClient` class and execute it:
     completed_job_request = client.submit_job("gearman_example.reverse", sentence))
     print "Result: '%s'" % completed_job_request.result
 
-The notation for the task name is `appname.jobname`, no matter what pattern
-you have defined in `GEARMAN_JOB_NAME`.
+The notation for the task name is `appname.jobname`.
 
 Dispatching a background event without waiting for the result is easy as well:
 
@@ -124,6 +115,7 @@ This software is licensed under the [Mozilla Tri-License][MPL]:
 
     Contributor(s):
       Frederic Wenzel <fwenzel@mozilla.com>
+      Aidan Lister <aidan@php.net
 
     Alternatively, the contents of this file may be used under the terms of
     either the GNU General Public License Version 2 or later (the "GPL"), or

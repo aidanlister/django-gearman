@@ -21,11 +21,9 @@ class gearman_job(object):
         except AttributeError:
             gm_module.gearman_job_list = [self]
 
-    def __call__(self, *args, **kwargs):
-        # call function with argument passed by the client only
+    def __call__(self, gearman_worker, gearman_job, *args, **kwargs):
         try:
-            arg = args[0].arg
+            arg = gearman_job.data
         except IndexError:
             arg = None
         return self.f(arg)
-
